@@ -6,10 +6,16 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 find_package(OpenGL REQUIRED)
 
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
+set(CORE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../code")
 set(THIRD_PARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third-party")
 set(SOURCES 
     "${SRC_DIR}/app.cpp" 
     "${SRC_DIR}/util.hpp"
+    "${CORE_DIR}/deformation.h" 
+    "${CORE_DIR}/glslmathforcpp.h" 
+    "${CORE_DIR}/kelvinlets.h" 
+    "${CORE_DIR}/nonelastic.h" 
+    "${CORE_DIR}/odesolvers.h" 
 )
 
 set(EXTRA_SOURCES 
@@ -23,9 +29,10 @@ set(EXTRA_SOURCES
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
-# graphics application
+# application
 add_executable(${PROJECT_NAME} ${SOURCES} ${EXTRA_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE "${SRC_DIR}")
+target_include_directories(${PROJECT_NAME} PRIVATE "${CORE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${THIRD_PARTY_DIR}")
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
 source_group("src" FILES ${SOURCES})
