@@ -4,48 +4,52 @@
 // This source code is licensed under the BSD - style license found in the
 // LICENSE file in the root directory of this source tree.
 
-// This file contains a collection of ODE solvers
-// compatible with C++ and GLSL code. Because this
-// code is used by GLSL, we can't use a lot of nice
-// things in C, like namespaces, classes, or virtual functions.
-// We work around that by generating C style functions using the
-// C preprocessor.
-//
-// To use this code, you must specify these macros, and
-// then #include this file:
-// SCOPE,
-// EVALUATE, 
-// PARAMETERLIST,
-// PARAMETERS
-//
-// For example:
-//
-//  #define SCOPE(suffix) Kelvinlets##suffix
-//  #define EVALUATE(...) KEvaluate(__VA_ARGS__)
-//  #define PARAMETERLIST KelvinletParameters klvn, State state
-//  #define PARAMETERS klvn, state
-//  #include "ODESolver.h"
-//
-// The SCOPE macro must create a unique
-// C identifier, given the suffix. This is used
-// to provide a scope for function names and structs.
-//
-// The EVALUATE macro must be a function that
-// returns a derivative. It has a declaration of:
-// vec3 evaluator(float t, vec3 x, PARAMETERLIST)
-//
-// The PARAMETERLIST macro is the list of parameters
-// used by the EVALUATE function, used in a function
-// declaration.
-//
-// The PARAMETERS macro is the list of parameters
-// used by the EVALUATE function, used to invoke the
-// function.
-//
-// The ODE solver about the PARAMETERS, but the user
-// needs a way to pass data to the evaluator function.
-// For example, if your is f(x) = sin(x) + c + d^x, 
-// then c and d would be parameters.
+#pragma once
+
+/*
+ * This file contains a collection of ODE solvers
+ * compatible with C++ and GLSL code. Because this
+ * code is used by GLSL, we can't use a lot of nice
+ * things in C, like namespaces, classes, or virtual functions.
+ * We work around that by generating C style functions using the
+ * C preprocessor.
+ *
+ * To use this code, you must specify these macros, and
+ * then #include this file:
+ * SCOPE,
+ * EVALUATE, 
+ * PARAMETERLIST,
+ * PARAMETERS
+ *
+ * For example:
+ *
+ *  #define SCOPE(suffix) Kelvinlets##suffix
+ *  #define EVALUATE(...) KEvaluate(__VA_ARGS__)
+ *  #define PARAMETERLIST KelvinletParameters klvn, State state
+ *  #define PARAMETERS klvn, state
+ *  #include "ODESolver.h"
+ *
+ * The SCOPE macro must create a unique
+ * C identifier, given the suffix. This is used
+ * to provide a scope for function names and structs.
+ *
+ * The EVALUATE macro must be a function that
+ * returns a derivative. It has a declaration of:
+ * vec3 evaluator(float t, vec3 x, PARAMETERLIST)
+ *
+ * The PARAMETERLIST macro is the list of parameters
+ * used by the EVALUATE function, used in a function
+ * declaration.
+ *
+ * The PARAMETERS macro is the list of parameters
+ * used by the EVALUATE function, used to invoke the
+ * function.
+ *
+ * The ODE solver about the PARAMETERS, but the user
+ * needs a way to pass data to the evaluator function.
+ * For example, if your is f(x) = sin(x) + c + d^x, 
+ * then c and d would be parameters.
+ */
 
 ///////////////////////////////////////////////////////
 // Tunable Constants

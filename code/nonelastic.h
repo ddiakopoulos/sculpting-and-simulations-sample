@@ -11,6 +11,8 @@
 // differential equation form
 ///////////////////////////////////////////////////////
 
+#pragma once
+
 INLINE vec3
 NonElasticEvaluateODE(float t, vec3 x, Deformation deformer)
 {

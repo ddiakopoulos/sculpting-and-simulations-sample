@@ -4,18 +4,20 @@
 // This source code is licensed under the BSD - style license found in the
 // LICENSE file in the root directory of this source tree.
 
-#ifdef __cplusplus
 #pragma once
-#define INLINE inline
-INLINE float min(float a, float b) { return a < b ? a : b; };
-INLINE float max(float a, float b) { return a > b ? a : b; };
-INLINE int min(int a, int b) { return a < b ? a : b; };
-INLINE int max(int a, int b) { return a > b ? a : b; };
-#include "glslmathforcpp.h"
+
+#ifdef __cplusplus
+    #pragma once
+    #define INLINE inline
+    INLINE float min(float a, float b) { return a < b ? a : b; };
+    INLINE float max(float a, float b) { return a > b ? a : b; };
+    INLINE int min(int a, int b) { return a < b ? a : b; };
+    INLINE int max(int a, int b) { return a > b ? a : b; };
+    #include "glslmathforcpp.h"
 #else
-// otherwise this assumes GLSL, which defines min()/max()
-#define INLINE
-struct quat { float r, i, j, k; };
+    // otherwise this assumes GLSL, which defines min()/max()
+    #define INLINE
+    struct quat { float r, i, j, k; };
 #endif
 
 struct Pose
