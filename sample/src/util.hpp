@@ -43,6 +43,89 @@
 using namespace linalg;
 using namespace linalg::aliases;
 
+inline float4x4 make_rigid_transformation_matrix(const float4 & rotation, const float3 & translation)
+{
+    return{ { qxdir(rotation),0 },{ qydir(rotation),0 },{ qzdir(rotation),0 },{ translation,1 } };
+}
+
+inline float4 make_rotation_quat_from_rotation_matrix(const float3x3 & m)
+{
+    const float magw = m[0][0] + m[1][1] + m[2][2];
+
+    const bool wvsz = magw > m[2][2];
+    const float magzw = wvsz ? magw : m[2][2];
+    const float3 prezw = wvsz ? float3(1, 1, 1) : float3(-1, -1, 1);
+    const float4 postzw = wvsz ? float4(0, 0, 0, 1) : float4(0, 0, 1, 0);
+
+    const bool xvsy = m[0][0] > m[1][1];
+    const float magxy = xvsy ? m[0][0] : m[1][1];
+    const float3 prexy = xvsy ? float3(1, -1, -1) : float3(-1, 1, -1);
+    const float4 postxy = xvsy ? float4(1, 0, 0, 0) : float4(0, 1, 0, 0);
+
+    const bool zwvsxy = magzw > magxy;
+    const float3 pre = zwvsxy ? prezw : prexy;
+    const float4 post = zwvsxy ? postzw : postxy;
+
+    const float t = pre.x * m[0][0] + pre.y * m[1][1] + pre.z * m[2][2] + 1;
+    const float s = 1.f / sqrt(t) / 2.f;
+    const float4 qp = float4(pre.y * m[1][2] - pre.z * m[2][1], pre.z * m[2][0] - pre.x * m[0][2], pre.x * m[0][1] - pre.y * m[1][0], t) * s;
+    return qmul(qp, post);
+}
+
+// Rigid transformation value-type
+struct Transform
+{
+    float4      orientation; // Orientation of an object, expressed as a rotation quaternion from the base orientation
+    float3      position; // Position of an object, expressed as a translation vector from the base position
+
+    Transform() : Transform({ 0,0,0,1 }, { 0,0,0 }) {}
+    Transform(const float4 & orientation, const float3 & position) : orientation(orientation), position(position) {}
+    explicit    Transform(const float4 & orientation) : Transform(orientation, { 0,0,0 }) {}
+    explicit    Transform(const float3 & position) : Transform({ 0,0,0,1 }, position) {}
+
+    Transform        inverse() const { auto invOri = qinv(orientation); return{ invOri, qrot(invOri, -position) }; }
+    float4x4    matrix() const { return make_rigid_transformation_matrix(orientation, position); }
+    float3      xdir() const { return qxdir(orientation); } // Equivalent to transform_vector({1,0,0})
+    float3      ydir() const { return qydir(orientation); } // Equivalent to transform_vector({0,1,0})
+    float3      zdir() const { return qzdir(orientation); } // Equivalent to transform_vector({0,0,1})
+
+    float3      transform_vector(const float3 & vec) const { return qrot(orientation, vec); }
+    float3      transform_coord(const float3 & coord) const { return position + transform_vector(coord); }
+    float3      detransform_coord(const float3 & coord) const { return detransform_vector(coord - position); } // Equivalent to inverse().transform_coord(coord), but faster
+    float3      detransform_vector(const float3 & vec) const { return qrot(qinv(orientation), vec); } // Equivalent to inverse().transform_vector(vec), but faster
+
+    Transform        operator * (const Transform & pose) const { return{ qmul(orientation,pose.orientation), transform_coord(pose.position) }; }
+};
+
+inline bool operator == (const Transform & a, const Transform & b)
+{
+    return (a.position == b.position) && (a.orientation == b.orientation);
+}
+
+inline bool operator != (const Transform & a, const Transform & b)
+{
+    return (a.position != b.position) || (a.orientation != b.orientation);
+}
+
+inline std::ostream & operator << (std::ostream & o, const Transform & r)
+{
+    return o << "{" << r.position << ", " << r.orientation << "}";
+}
+
+inline float3x3 get_rotation_submatrix(const float4x4 & transform)
+{
+    return{ transform.x.xyz(), transform.y.xyz(), transform.z.xyz() };
+}
+
+inline Transform make_pose_from_transform_matrix(float4x4 transform)
+{
+    Transform p;
+    p.position = transform[3].xyz();
+    p.orientation = make_rotation_quat_from_rotation_matrix(get_rotation_submatrix(transform));
+    return p;
+}
+
+
 class noncopyable
 {
 protected:

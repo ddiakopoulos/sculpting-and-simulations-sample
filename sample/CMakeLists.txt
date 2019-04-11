@@ -19,6 +19,8 @@ set(SOURCES
 )
 
 set(EXTRA_SOURCES 
+    "${SRC_DIR}/vr-hmd.hpp"
+    "${SRC_DIR}/vr-hmd.cpp"
     "${SRC_DIR}/gl-api.hpp"
     "${SRC_DIR}/gl-geometry.hpp"
     "${SRC_DIR}/gl-imgui.hpp"
@@ -56,12 +58,23 @@ target_include_directories("glad" PRIVATE "${GLAD_DIR}/include")
 target_include_directories(${PROJECT_NAME} PRIVATE "${GLAD_DIR}/include")
 target_link_libraries(${PROJECT_NAME} "glad" "${CMAKE_DL_LIBS}")
 
-#imgui
+# imgui
 set(IMGUI_DIR "${THIRD_PARTY_DIR}/imgui")
 add_library("imgui" "${IMGUI_DIR}/imgui_draw.cpp" "${IMGUI_DIR}/imgui.cpp")
 target_include_directories("imgui" PRIVATE "${IMGUI_DIR}")
 target_include_directories(${PROJECT_NAME} PRIVATE "${THIRD_PARTY_DIR}")
 target_link_libraries(${PROJECT_NAME} "imgui" "${CMAKE_DL_LIBS}")
+
+# openvr
+set(OPENVR_DIR "${THIRD_PARTY_DIR}/openvr")
+target_include_directories(${PROJECT_NAME} PUBLIC "${OPENVR_DIR}/include")
+target_link_libraries(${PROJECT_NAME} "${OPENVR_DIR}/lib/x64/openvr_api.lib")
+
+add_custom_target(CopyBinaries
+    COMMAND ${CMAKE_COMMAND} -E copy ${OPENVR_DIR}/bin/x64/openvr_api.dll ${EXECUTABLE_OUTPUT_PATH}
+)
+
+# file(COPY ${DIR}/openvr_api.dll DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 
 set_target_properties(glfw PROPERTIES FOLDER "third-party")
 set_target_properties(glad PROPERTIES FOLDER "third-party")

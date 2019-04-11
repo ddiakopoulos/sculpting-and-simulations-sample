@@ -5,6 +5,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
 
+#include "vr-hmd.hpp"
+
 #include "deformation.h"
 #include "glslmathforcpp.h"
 #include "kelvinlets.h"
